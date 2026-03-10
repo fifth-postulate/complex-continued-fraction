@@ -1,4 +1,4 @@
-module Rational exposing (Rational, add, create, divide, floor, invert, isZero, multiply, negate, one, scale, subtract, toFloat, toString, zero)
+module Rational exposing (Rational, add, create, divide, floor, fromInt, invert, isZero, multiply, negate, one, scale, subtract, toFloat, toString, zero)
 
 
 type Rational
@@ -7,12 +7,17 @@ type Rational
 
 zero : Rational
 zero =
-    Fraction 0 1
+    fromInt 0
 
 
 one : Rational
 one =
-    Fraction 1 1
+    fromInt 1
+
+
+fromInt : Int -> Rational
+fromInt n =
+    Fraction n 1
 
 
 isZero : Rational -> Bool
