@@ -8,6 +8,24 @@ import RationalTest exposing (fraction)
 import Test exposing (..)
 
 
+
+{-
+   # Associativity of the Complex numbers.
+
+       Multiplication of complex numbers is associative. I.e.
+       for complex numbers a,b,c we have the following equality
+       a * (b * c) = (a * b) * c.
+
+       This implementation lacks the associativity property.
+
+       It seems that the origin of this discrepency arises because
+       of the limited range of Int: from -2^31 to 2^31-1.
+       (See https://package.elm-lang.org/packages/elm/core/latest/Basics#Int)
+
+       That is a good reason to switch to a Rust implementation.
+-}
+
+
 suite : Test
 suite =
     describe "Complex Module"
