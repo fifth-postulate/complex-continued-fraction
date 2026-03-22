@@ -1,3 +1,4 @@
+use std::convert::From;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -24,6 +25,14 @@ impl Rational {
             denominator: d / gcd,
         }
     }
+
+    pub fn is_zero(self) -> bool {
+        self.numerator == 0
+    }
+
+    pub fn invert(self) -> Option<Self> {
+        Self::create(self.denominator, self.numerator)
+    }
 }
 
 fn sign(n: i128) -> i128 {
@@ -46,6 +55,12 @@ fn egcd_helper(a: i128, b: i128, s: i128, t: i128, u: i128, v: i128) -> (i128, i
     } else {
         let q = a / b;
         egcd_helper(b, a % b, u, v, s - q * u, t - q * v)
+    }
+}
+
+impl From<i128> for Rational {
+    fn from(source: i128) -> Self {
+        Self::safe_create(source, 1)
     }
 }
 
@@ -91,16 +106,29 @@ impl Div<Self> for Rational {
     type Output = Option<Self>;
 
     fn div(self, rhs: Self) -> Self::Output {
-        Self::create(
-            self.numerator * rhs.denominator,
-            self.denominator * rhs.numerator,
-        )
+        rhs.invert().map(|q| self * q)
+    }
+}
+
+#[cfg(test)]
+pub mod test_util {
+    use super::*;
+    use proptest::prelude::*;
+
+    prop_compose! {
+        pub fn arbitrary_rational(
+                max_numerator: i128, max_denominator : i128)
+            (n in -max_numerator .. max_numerator,
+             d in 1 .. max_denominator) -> Rational {
+             Rational::safe_create(n, d)
+         }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::rational::test_util::arbitrary_rational;
     use proptest::prelude::*;
 
     const MAX: i128 = 100_000;
@@ -125,15 +153,6 @@ mod tests {
 
         let expected = Rational::create(29, 21).expect("a correct rational");
         assert_eq!(actual, expected);
-    }
-
-    prop_compose! {
-        fn arbitrary_rational(
-                max_numerator: i128, max_denominator : i128)
-            (n in -max_numerator .. max_numerator,
-             d in 1 .. max_denominator) -> Rational {
-             Rational::safe_create(n, d)
-         }
     }
 
     proptest! {
