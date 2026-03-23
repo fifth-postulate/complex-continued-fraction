@@ -2,7 +2,7 @@ use crate::rational::Rational;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
-pub struct Complex {
+pub struct Complex<T> {
     real: Rational,
     imaginary: Rational,
 }

@@ -26,12 +26,16 @@ impl Rational {
         }
     }
 
-    pub fn is_zero(self) -> bool {
+    pub fn is_zero(&self) -> bool {
         self.numerator == 0
     }
 
-    pub fn invert(self) -> Option<Self> {
+    pub fn invert(&self) -> Option<Self> {
         Self::create(self.denominator, self.numerator)
+    }
+
+    pub fn ceil(&self) -> i128 {
+        self.numerator / self.denominator
     }
 }
 
@@ -124,7 +128,6 @@ pub mod test_util {
          }
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -153,6 +156,24 @@ mod tests {
 
         let expected = Rational::create(29, 21).expect("a correct rational");
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn ceiling_of_halve_should_work_correctly() {
+        let halve = Rational::create(1, 2).expect("a correct rational");
+
+        let actual = halve.ceil();
+
+        assert_eq!(actual, 0);
+    }
+
+    #[test]
+    fn ceiling_of_51_37_should_work_correctly() {
+        let q = Rational::create(51, 37).expect("a correct rational");
+
+        let actual = q.ceil();
+
+        assert_eq!(actual, 1);
     }
 
     proptest! {
