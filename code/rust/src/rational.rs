@@ -1,3 +1,4 @@
+use crate::traits::{Ceiling, Invert, IsZero};
 use std::convert::From;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -25,18 +26,6 @@ impl Rational {
             denominator: d / gcd,
         }
     }
-
-    pub fn is_zero(&self) -> bool {
-        self.numerator == 0
-    }
-
-    pub fn invert(&self) -> Option<Self> {
-        Self::create(self.denominator, self.numerator)
-    }
-
-    pub fn ceil(&self) -> i128 {
-        self.numerator / self.denominator
-    }
 }
 
 fn sign(n: i128) -> i128 {
@@ -59,6 +48,28 @@ fn egcd_helper(a: i128, b: i128, s: i128, t: i128, u: i128, v: i128) -> (i128, i
     } else {
         let q = a / b;
         egcd_helper(b, a % b, u, v, s - q * u, t - q * v)
+    }
+}
+
+impl IsZero for Rational {
+    fn is_zero(&self) -> bool {
+        self.numerator == 0
+    }
+}
+
+impl Ceiling for Rational {
+    type Output = i128;
+
+    fn ceil(&self) -> Self::Output {
+        self.numerator / self.denominator
+    }
+}
+
+impl Invert for Rational {
+    type Output = Self;
+
+    fn invert(&self) -> Option<Self::Output> {
+        Self::create(self.denominator, self.numerator)
     }
 }
 

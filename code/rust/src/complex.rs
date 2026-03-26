@@ -1,46 +1,53 @@
-use crate::rational::Rational;
+use crate::{rational::Rational, traits::{Invert, IsZero, Ceiling}};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 pub struct Complex<T> {
-    real: Rational,
-    imaginary: Rational,
+    real: T,
+    imaginary: T,
 }
 
-impl Complex {
-    pub fn create<T: Into<Rational>>(real: T, imaginary: T) -> Self {
-        Complex {
-            real: real.into(),
-            imaginary: imaginary.into(),
-        }
+impl<T> Complex<T> {
+    pub fn create(real: T, imaginary: T) -> Self {
+        Complex { real, imaginary }
     }
+}
 
+impl<T : IsZero> Complex<T> {
     pub fn is_zero(self) -> bool {
         self.real.is_zero() && self.imaginary.is_zero()
     }
+}
 
-    pub fn conjugate(self) -> Self {
-        Self::create(self.real, -self.imaginary)
-    }
+impl<T: Invert<Output=T> + Mul<T, Output=T> + Add<T, Output=T> + Neg<Output = T> + Copy> Invert for Complex<T> {
+    type Output = Self;
 
-    pub fn norm(self) -> Rational {
-        self.real * self.real + self.imaginary * self.imaginary
-    }
-
-    pub fn invert(self) -> Option<Self> {
+    fn invert(&self) -> Option<Self::Output> {
         self.norm().invert().map(|n| self.conjugate() * n)
     }
 }
 
-impl Mul<Rational> for Complex {
+impl<T: Neg<Output = T>> Complex<T> {
+    pub fn conjugate(self) -> Self {
+        Self::create(self.real, -self.imaginary)
+    }
+}
+
+impl<T: Add<T, Output = T> + Mul<T, Output = T> + Copy> Complex<T> {
+    fn norm(self) -> T {
+        self.real * self.real + self.imaginary * self.imaginary
+    }
+}
+
+impl<T: Mul<T, Output = T> + Copy> Mul<T> for Complex<T> {
     type Output = Self;
 
-    fn mul(self, rhs: Rational) -> Self::Output {
+    fn mul(self, rhs: T) -> Self::Output {
         Self::create(self.real * rhs, self.imaginary * rhs)
     }
 }
 
-impl Add<Self> for Complex {
+impl<T: Add<T, Output = T>> Add<Self> for Complex<T> {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -48,7 +55,7 @@ impl Add<Self> for Complex {
     }
 }
 
-impl Mul<Self> for Complex {
+impl<T: Add<T, Output=T> + Mul<T, Output=T> + Sub<T, Output=T> + Copy> Mul<Self> for Complex<T> {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -59,7 +66,7 @@ impl Mul<Self> for Complex {
     }
 }
 
-impl Neg for Complex {
+impl<T: Neg<Output = T>> Neg for Complex<T> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -67,7 +74,7 @@ impl Neg for Complex {
     }
 }
 
-impl Sub<Self> for Complex {
+impl<T: Neg<Output= T> + Add<T, Output = T>> Sub<Self> for Complex<T> {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -75,7 +82,7 @@ impl Sub<Self> for Complex {
     }
 }
 
-impl Div<Self> for Complex {
+impl<T: Add<T, Output=T> + Mul<T, Output=T> + Sub<T, Output=T> + Invert<Output=T> + Neg<Output = T> + Copy > Div<Self> for Complex<T> {
     type Output = Option<Self>;
 
     fn div(self, rhs: Self) -> Self::Output {
@@ -116,7 +123,7 @@ mod tests {
     prop_compose! {
         fn arbitrary_complex(max: i128)
             (real in arbitrary_rational(max, max),
-             imaginary in arbitrary_rational(max, max)) -> Complex {
+             imaginary in arbitrary_rational(max, max)) -> Complex<Rational> {
              Complex::create(real, imaginary)
          }
     }
