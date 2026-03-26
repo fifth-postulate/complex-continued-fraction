@@ -1,4 +1,4 @@
-use crate::{rational::Rational, traits::{Invert, IsZero, Ceiling}};
+use crate::{traits::{Invert, IsZero}};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -93,7 +93,7 @@ impl<T: Add<T, Output=T> + Mul<T, Output=T> + Sub<T, Output=T> + Invert<Output=T
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rational::test_util::arbitrary_rational;
+    use crate::rational::{Rational, test_util::arbitrary_rational};
     use proptest::prelude::*;
 
     const MAX: i128 = 1000;
