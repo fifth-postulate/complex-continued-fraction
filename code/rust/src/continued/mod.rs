@@ -65,4 +65,20 @@ mod tests {
             ])
         );
     }
+
+    #[test]
+    fn rational_should_have_a_finite_continued_fraction() {
+        let q = Rational::create(4, 3).expect("a rational");
+        let source = Complex::create(q, 1.into());
+
+        let actual = continued_fraction(source, Depth::Finite(10));
+
+        assert_eq!(
+            actual,
+            Result::Finished(vec![
+                Complex::create(1.into(), 1.into()),
+                Complex::create(3.into(), 0.into()),
+            ])
+        );
+    }
 }
