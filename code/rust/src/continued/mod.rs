@@ -1,20 +1,39 @@
 mod depth;
 
 use crate::complex::Complex;
-use crate::traits::IsZero;
+use crate::traits::{Ceiling, Integral, Invert, IsZero};
 use depth::Depth;
+use std::ops::{Add, Mul, Neg};
 
 pub enum Result<T> {
     Finished(Vec<Complex<T>>),
     Ongoing((Vec<Complex<T>>, Complex<T>)),
 }
 
-pub fn continued_fraction<T: IsZero + Copy>(z: Complex<T>, max: Depth) -> Result<T> {
+pub fn continued_fraction<
+    T: Add<T, Output = T>
+        + Mul<T, Output = T>
+        + Neg<Output = T>
+        + Invert<Output = T>
+        + IsZero
+        + Ceiling<Output = T>
+        + Copy,
+>(
+    z: Complex<T>,
+    max: Depth,
+) -> Result<T> {
     let mut result = vec![];
     let mut current = Depth::Finite(0);
-    let mut residue = z;
+    let mut integral = z.integral();
+    result.push(integral);
+    let mut residue = z - integral;
     while current < max && !residue.is_zero() {
-        current.next();
+        current = current.next();
+
+        let inv = residue.invert().expect("non-zero residue");
+        integral = inv.integral();
+        result.push(integral);
+        residue = inv - integral;
     }
 
     if residue.is_zero() {

@@ -1,4 +1,4 @@
-use crate::{traits::{Invert, IsZero}};
+use crate::{traits::{Invert, IsZero, Ceiling, Integral}};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -16,6 +16,13 @@ impl<T> Complex<T> {
 impl<T : IsZero> Complex<T> {
     pub fn is_zero(self) -> bool {
         self.real.is_zero() && self.imaginary.is_zero()
+    }
+}
+
+
+impl<T: Ceiling<Output = T>> Integral for Complex<T> {
+    fn integral(&self) -> Self {
+        Self::create(self.real.ceil(), self.imaginary.ceil())
     }
 }
 

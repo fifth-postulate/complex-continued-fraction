@@ -13,3 +13,7 @@ pub trait Ceiling {
 
     fn ceil(&self) -> Self::Output;
 }
+
+pub trait Integral {
+    fn integral(&self) -> Self;
+}
