@@ -1,4 +1,4 @@
-use crate::{traits::{Invert, IsZero, Ceiling, Integral}};
+use crate::{traits::{Invert, IsZero, Integral}};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
@@ -19,10 +19,9 @@ impl<T : IsZero> Complex<T> {
     }
 }
 
-
-impl<T: Ceiling<Output = T>> Integral for Complex<T> {
+impl<T: Integral> Integral for Complex<T> {
     fn integral(&self) -> Self {
-        Self::create(self.real.ceil(), self.imaginary.ceil())
+        Self::create(self.real.integral(), self.imaginary.integral())
     }
 }
 
@@ -125,6 +124,20 @@ mod tests {
 
         let expected = Complex::create(7, 10);
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn integral_of_complex_works_correctly() {
+        let q1 = Rational::create(2, 3).expect("a correct rational");
+        let q2 = Rational::create(1, 3).expect("a correct rational");
+        let z = Complex::create(q1, q2);
+
+        let actual = z.integral();
+
+        let r1: Rational = 1.into();
+        let r2: Rational = 0.into();
+        let expected = Complex::create(r1, r2);
+        assert_eq!(actual, expected)
     }
 
     prop_compose! {

@@ -1,4 +1,4 @@
-use crate::traits::{Ceiling, Invert, IsZero};
+use crate::traits::{Ceiling, Integral, Invert, IsZero};
 use std::convert::From;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
@@ -58,10 +58,18 @@ impl IsZero for Rational {
 }
 
 impl Ceiling for Rational {
-    type Output = i128;
+    type Output = Rational;
 
     fn ceil(&self) -> Self::Output {
-        self.numerator / self.denominator
+        let n = self.numerator / self.denominator;
+        Self::safe_create(n, 1)
+    }
+}
+
+impl Integral for Rational {
+    fn integral(&self) -> Self {
+        let shifted = *self + Rational::safe_create(1, 2);
+        shifted.ceil()
     }
 }
 
@@ -171,11 +179,11 @@ mod tests {
 
     #[test]
     fn ceiling_of_halve_should_work_correctly() {
-        let halve = Rational::create(1, 2).expect("a correct rational");
+        let halve = Rational::create(2, 3).expect("a correct rational");
 
         let actual = halve.ceil();
 
-        assert_eq!(actual, 0);
+        assert_eq!(actual, 0.into());
     }
 
     #[test]
@@ -184,7 +192,25 @@ mod tests {
 
         let actual = q.ceil();
 
-        assert_eq!(actual, 1);
+        assert_eq!(actual, 1.into());
+    }
+
+    #[test]
+    fn integral_of_a_third_is_zero() {
+        let q = Rational::create(1, 3).expect("a correct rational");
+
+        let actual = q.integral();
+
+        assert_eq!(actual, 0.into())
+    }
+
+    #[test]
+    fn integral_of_two_third_is_zero() {
+        let q = Rational::create(2, 3).expect("a correct rational");
+
+        let actual = q.integral();
+
+        assert_eq!(actual, 1.into())
     }
 
     proptest! {
